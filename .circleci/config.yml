@@ -4,14 +4,16 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      # Add parameter here
+      stack_name:
+        type: string
     steps:
       - run:
-          name: Destroy environments
+          name: Destroy environments <<parameters.stack_name>>
           when: on_fail
           command: |
             # Your code here
-            exit 1
+            aws cloudformation delete-stack --stack-name "<<parameters.stack_name>>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -74,11 +76,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
+      # Restore from cache
       - restore_cache:
           keys: [backend-build]
+      # Your job code here
       - run:
           name: Run frontend test
           command: |
@@ -92,11 +94,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
+      # Restore from cache
       - restore_cache:
           keys: [backend-build]
+      # Your job code here
       - run:
           name: Run backend test
           command: |
@@ -110,11 +112,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
+      # Restore from cache
       - restore_cache:
           keys: [backend-build]
+      # Your job code here
       - run:
           name: Run scan frontend
           command: |
@@ -132,11 +134,11 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
-      # Restore from cache
-      # Your job code here
       - checkout
+      # Restore from cache
       - restore_cache:
           keys: [backend-build]
+      # Your job code here
       - run:
           name: Run scan backend
           command: |
@@ -147,6 +149,67 @@ jobs:
              # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
              npm audit fix --force
              npm audit --audit-level=critical
+  deploy-infrastructure:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region us-east-1
+      - destroy-environment:
+          stack_name: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: inventory file
+          command: |
+            echo [web] > .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udacity" \
+              --output text >> .circleci/ansible/inventory.txt
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region us-east-1
+      - destroy-environment:
+          stack_name: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"] # You can get this ID in the section where you registered the SSH Key
+      # attach workspace
+      - run:
+          name: Install dependencies
+          command: |
+            # install the dependencies needed for your playbook
+            apk add --update ansible 
+      - run:
+          name: Configure server
+          command: |
+            # Your code here
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      # Here's where you will add some code to rollback on failure   
+
 workflows:
   default:
     jobs:
@@ -160,4 +223,9 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
             
