@@ -167,7 +167,7 @@ jobs:
       - destroy-environment:
           stack_name: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
-          name: inventory file
+          name: Add back-end ip to ansible inventory
           command: |
             echo [web] > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
