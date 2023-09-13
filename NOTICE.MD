@@ -20,36 +20,18 @@ TYPEORM_USERNAME={your postgres database username in RDS}
 TYPEORM_PASSWORD={your postgres database password in RDS}
 TYPEORM_DATABASE=postgres {or your postgres database name in RDS}
 
-1. Jobs list
-workflows:
-  default:
-    jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+Building a Continuous Integration Pipeline
+Sharing Information
+# Syntax
+curl -d 'email=trind7.register@gmail.com' https://kvdb.io -> 4rFJyH4hNUAdKbwRLrY43L 
+# Returns a bucket ID, such as, "XsgrYuyPESbxCcte4sLxEM"
+
+# Syntax
+curl https://kvdb.io/[bucket-ID]/[key]  -d '[value]'
+# Example
+curl https://kvdb.io/4rFJyH4hNUAdKbwRLrY43L/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
+
+# Syntax
+curl --insecure  https://kvdb.io/[bucket-ID]/[key]
+# Example
+curl --insecure  https://kvdb.io/4rFJyH4hNUAdKbwRLrY43L/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}
