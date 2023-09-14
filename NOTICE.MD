@@ -24,13 +24,13 @@ TYPEORM_DATABASE=postgres {or your postgres database name in RDS}
 Building a Continuous Integration Pipeline
 Sharing Information
 # Syntax
-curl -d 'email=trind7.register@gmail.com' https://kvdb.io -> 4rFJyH4hNUAdKbwRLrY43L 
+curl -d 'email=trind7.register@gmail.com' https://kvdb.io -> GnKyNnpF737L7n1W7dcs5G 
 # Returns a bucket ID, such as, "XsgrYuyPESbxCcte4sLxEM"
 
 # Syntax
 curl https://kvdb.io/[bucket-ID]/[key]  -d '[value]'
 # Example
-curl https://kvdb.io/4rFJyH4hNUAdKbwRLrY43L/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
+curl https://kvdb.io/GnKyNnpF737L7n1W7dcs5G/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
 
 # Syntax
 curl --insecure  https://kvdb.io/[bucket-ID]/[key]
