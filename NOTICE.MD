@@ -7,9 +7,10 @@ Password: mypassword
 Port: 5432
 
 1. For Circle CI: Set env for Circle CI project
-AWS_ACCESS_KEY_ID=(from IAM user with programmatic access)
-AWS_SECRET_ACCESS_KEY= (from IAM user with programmatic access)
-AWS_DEFAULT_REGION=(your default region in aws)
+AWS_ACCESS_KEY_ID=ASIAWGFXITUAXMLKVXE6
+AWS_SECRET_ACCESS_KEY=enlMSTfF51q+1hxLlj18E+x6ZdB/ckrZx9W/SosA
+AWS_DEFAULT_REGION=us-east-1
+AWS_SESSION_TOKEN=
 TYPEORM_CONNECTION=postgres
 TYPEORM_MIGRATIONS_DIR=./src/migrations
 TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
