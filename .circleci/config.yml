@@ -243,11 +243,12 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Install dependencies
           command: |
             # your code here
-            pip install --upgrade pip
             pip install --user ansible
       - run:
           name: Get backend url
@@ -257,9 +258,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            cat frontend/.env
-      - restore_cache:
-          keys: [frontend-build]
+            cat frontend/.env      
       - run:
           name: Deploy frontend objects
           command: |
@@ -267,6 +266,8 @@ jobs:
             cd frontend
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment:
+          stack_name: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             
       # Here's where you will add some code to rollback on failure  
   deploy-backend:
@@ -278,13 +279,14 @@ jobs:
       - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
-          fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"] 
+          fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"]
+      - restore_cache:
+          keys: [backend-build]
       # attach workspace
       - run:
           name: Install dependencies
           command: |
             # your code here
-            pip install --upgrade pip
             pip install --user ansible
       - run:
           name: create artifact
@@ -295,6 +297,8 @@ jobs:
             # your code here
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure 
+      - destroy-environment:
+          stack_name: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
 workflows:
   default:
     jobs:
