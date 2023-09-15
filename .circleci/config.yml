@@ -246,11 +246,6 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Install dependencies
-          command: |
-            # your code here
-            pip install --user ansible
-      - run:
           name: Get backend url
           command: |
             # your code here
@@ -287,6 +282,11 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            # Install the required C compiler (gcc) on Ubuntu/Debian
+            sudo apt-get update
+            sudo apt-get install build-essential
+            # Upgrade pip
+            pip install --upgrade pip            
             pip install --user ansible
       - run:
           name: create artifact
