@@ -227,14 +227,12 @@ jobs:
           name: Send migration results to kvdb
           command: |
             # Your code here
-            sudo apt-get update && sudo apt-get install -y ca-certificates
-
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
-              curl https://kvdb.io/DPNEerxZ3djdxtferEir3s/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/DPNEerxZ3djdxtferEir3s/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             else
-              curl https://kvdb.io/DPNEerxZ3djdxtferEir3s/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
+              curl --insecure https://kvdb.io/DPNEerxZ3djdxtferEir3s/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
               echo "No migration has been executed."
             fi            
      # Here's where you will add some code to rollback on failure  
