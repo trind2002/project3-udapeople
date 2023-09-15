@@ -173,6 +173,11 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udacity" \
               --output text >> .circleci/ansible/inventory.txt
+      - run: cat .circleci/ansible/inventory.txt
+      - save_cache:
+          paths:
+            - .circleci/ansible/inventory.txt
+          key: inventory-{{ .Revision  }}
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -245,10 +250,12 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
+      - restore_cache:
+          key: inventory-{{ .Revision  }}
       - run:
           name: Get backend url
           command: |
-            # your code here
+            # your code here            
             export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | tail -n 1)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
@@ -259,6 +266,7 @@ jobs:
           command: |
             # your code here
             cd frontend
+            npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
@@ -269,6 +277,7 @@ jobs:
     docker:
       # Docker image here that supports Ansible
       - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
@@ -277,16 +286,13 @@ jobs:
           fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"]
       - restore_cache:
           keys: [backend-build]
+      - restore_cache:
+          key: inventory-{{ .Revision  }}
       # attach workspace
       - run:
           name: Install dependencies
           command: |
             # your code here
-            # Install the required C compiler (gcc) on Ubuntu/Debian
-            sudo apt-get update
-            sudo apt-get install build-essential
-            # Upgrade pip
-            pip install --upgrade pip            
             pip install --user ansible
       - run:
           name: create artifact
