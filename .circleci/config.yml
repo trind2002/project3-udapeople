@@ -253,7 +253,7 @@ jobs:
       - run:
           name: Install aws cli
           command: |
-            npm install -g aws-cli
+            npm install aws-cli
       - restore_cache:
           keys: [frontend-build]   
       - restore_cache:
