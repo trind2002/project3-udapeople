@@ -314,8 +314,6 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-            # tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
-            # ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
             cd backend
             npm i
             npm run build
