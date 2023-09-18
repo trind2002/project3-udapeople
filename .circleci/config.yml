@@ -286,8 +286,6 @@ jobs:
           fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"]
       - restore_cache:
           keys: [backend-build]
-      - restore_cache:
-          key: inventory-{{ .Revision  }}
       # attach workspace
       - run:
           name: Install dependencies
@@ -298,6 +296,8 @@ jobs:
       - run:
           name: create artifact
           command: tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
+      - restore_cache:
+          key: inventory-{{ .Revision  }}
       - run:
           name: Deploy backend
           command: |
