@@ -250,10 +250,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - run:
-          name: Install aws cli
-          command: |
-            npm install aws-cli
       - restore_cache:
           keys: [frontend-build]   
       - restore_cache:
@@ -276,6 +272,7 @@ jobs:
             cd frontend
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            npm install aws-cli
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
           stack_name: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
