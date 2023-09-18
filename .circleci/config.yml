@@ -307,6 +307,7 @@ jobs:
           command: |
             # install the dependencies needed for your playbook
             apk add --update ansible
+            apk add --no-cache tar
             pip install --upgrade awscli
             apk add --no-cache npm
             apk add --no-cache curl
@@ -320,7 +321,7 @@ jobs:
             cd ..
             ## Zip the directory
             tar -C backend -czvf artifact.tar.gz .
-            cp artifact.tar.gz .circleci/ansible/
+            cp artifact.tar.gz .circleci/ansible/roles/deploy/artifact
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
