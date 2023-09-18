@@ -249,8 +249,6 @@ jobs:
       # Checkout code from git
       - checkout
       - restore_cache:
-          keys: [frontend-build]
-      - restore_cache:
           key: inventory-{{ .Revision  }}
       - run:
           name: Get backend url
@@ -260,7 +258,9 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            cat frontend/.env      
+            cat frontend/.env
+      - restore_cache:
+          keys: [frontend-build]   
       - run:
           name: Deploy frontend objects
           command: |
@@ -276,7 +276,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.7-alpine3.11
+      # - image: python:3.7-alpine3.11
       - image: amazon/aws-cli
     steps:
       # Checkout code from git
@@ -294,6 +294,7 @@ jobs:
           command: |
             # your code here
             pip install --user ansible
+            pip install --upgrade pip --user
       - run:
           name: create artifact
           command: tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
