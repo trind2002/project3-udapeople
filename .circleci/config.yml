@@ -251,11 +251,9 @@ jobs:
       # Checkout code from git
       - checkout
       - run:
-          name: Install
+          name: Install aws cli
           command: |
-            sudo apt upgrade 
-            sudo apt update
-            sudo apt install awscli -y
+            npm install -g aws-cli
       - restore_cache:
           keys: [frontend-build]   
       - restore_cache:
@@ -302,7 +300,8 @@ jobs:
           name: Install dependencies
           command: |
             # install the dependencies needed for your playbook
-            apk add --update ansible 
+            python -m pip install --user awscli
+            apk add --update ansible
       - run:
           name: Deploy backend
           command: |
