@@ -243,13 +243,24 @@ jobs:
      # Here's where you will add some code to rollback on failure  
   deploy-frontend:
     docker:
+      - image: circleci/node:13.8.0
+      # docker:
       # Docker image here that supports AWS CLI
-      - image: amazon/aws-cli
+      # - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
+      - run:
+          name: Install
+          command: |
+            sudo apt upgrade 
+            sudo apt update
+            sudo apt install awscli -y
+      - restore_cache:
+          keys: [frontend-build]   
       - restore_cache:
           key: inventory-{{ .Revision  }}
+      
       - run:
           name: Get backend url
           command: |
@@ -259,13 +270,13 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
-      - restore_cache:
-          keys: [frontend-build]   
+      
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
             cd frontend
+            npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
@@ -275,24 +286,27 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      # - image: python:3.7-alpine3.11
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
+      # - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
+      - restore_cache:
+          keys: [backend-build]      
+      - restore_cache:
+          key: inventory-{{ .Revision  }}
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"]
-      - restore_cache:
-          keys: [backend-build]
-      
-      - restore_cache:
-          key: inventory-{{ .Revision  }}
+      - run:
+          name: Install dependencies
+          command: |
+            # install the dependencies needed for your playbook
+            apk add --update ansible 
       - run:
           name: Deploy backend
           command: |
             # your code here
-            cd backend
             tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure 
