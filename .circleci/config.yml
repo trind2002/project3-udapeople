@@ -308,6 +308,8 @@ jobs:
             # install the dependencies needed for your playbook
             apk add --update ansible
             pip install --upgrade awscli
+            apk add --no-cache npm
+            apk add --no-cache curl
       - run:
           name: Deploy backend
           command: |
