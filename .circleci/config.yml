@@ -17,21 +17,23 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-      # Add parameter here     
+      # Add parameter here   
     steps:
       - run:
           name: Revert migrations
           # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 ));
+            SUCCESS=$(curl --insecure https://kvdb.io/DPNEerxZ3djdxtferEir3s/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            echo $SUCCESS
+            if [ "$SUCCESS" = "1" ];
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
-            fi  
+              cd ~/project/backend
+              npm install
+              #  Add revert code here. You can find this in the Getting Started section.
+              npm run migrations:revert
+            fi
 jobs:
   build-frontend:
     docker:
@@ -231,6 +233,7 @@ jobs:
           name: Send migration results to kvdb
           command: |
             # Your code here
+            cd backend
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
@@ -240,6 +243,9 @@ jobs:
               echo "No migration has been executed."
             fi            
      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          stack_name: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
   deploy-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -278,10 +284,10 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      # Here's where you will add some code to rollback on failure
       - destroy-environment:
           stack_name: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
-            
-      # Here's where you will add some code to rollback on failure  
+      - revert-migrations         
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
@@ -306,11 +312,23 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-            tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+            # tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
+            # ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            ## Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cp artifact.tar.gz .circleci/ansible/
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure 
       - destroy-environment:
           stack_name: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 workflows:
   default:
     jobs:
