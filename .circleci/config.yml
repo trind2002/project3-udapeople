@@ -327,8 +327,7 @@ jobs:
             echo TYPEORM_PASSWORD=${TYPEORM_PASSWORD} >> "backend/.env"
             echo TYPEORM_DATABASE=${TYPEORM_DATABASE} >> "backend/.env"
             ## Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
-            cp artifact.tar.gz .circleci/ansible/roles/deploy/artifact
+            tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
