@@ -295,8 +295,8 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - restore_cache:
-          key: inventory-{{ .Revision  }}
+      - attach_workspace:
+          at: .circleci/ansible/
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"]
@@ -314,20 +314,12 @@ jobs:
           command: |
             # your code here
             cd backend
-            npm i
+            npm i            
             npm run build
             cd ..
-            echo ENVIRONMENT=production >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR} >> "backend/.env"
-            echo TYPEORM_ENTITIES=${TYPEORM_ENTITIES} >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS} >> "backend/.env"
-            echo TYPEORM_HOST=${TYPEORM_HOST} >> "backend/.env"
-            echo TYPEORM_PORT=${TYPEORM_PORT} >> "backend/.env"
-            echo TYPEORM_USERNAME=${TYPEORM_USERNAME} >> "backend/.env"
-            echo TYPEORM_PASSWORD=${TYPEORM_PASSWORD} >> "backend/.env"
-            echo TYPEORM_DATABASE=${TYPEORM_DATABASE} >> "backend/.env"
             ## Zip the directory
-            tar -C backend -czvf .circleci/ansible/roles/deploy/artifact/artifact.tar.gz .
+            tar -C backend -czvf artifact.tar.gz .
+            cp artifact.tar.gz .circleci/ansible/
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
