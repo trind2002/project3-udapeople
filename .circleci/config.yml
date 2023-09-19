@@ -113,7 +113,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [backend-build]
+          keys: [frontend-build]
       # Your job code here
       - run:
           name: Run scan frontend
