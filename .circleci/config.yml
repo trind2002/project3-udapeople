@@ -335,6 +335,8 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - attach_workspace:
+          at: .circleci/ansible/
       - run:
           name: Install dependencies
           command: |
@@ -353,10 +355,8 @@ jobs:
             # your code here
             if curl "${API_URL}/api/status" | grep "ok"
             then
-              echo "successful test"
               return 0              
             else
-              echo "failed test"
               return 1
             fi
       - run:
