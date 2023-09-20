@@ -259,9 +259,6 @@ jobs:
             sudo ./aws/install
       - restore_cache:
           keys: [frontend-build]   
-      - restore_cache:
-          key: inventory-{{ .Revision  }}
-      
       - run:
           name: Get backend url
           command: |
@@ -346,8 +343,10 @@ jobs:
             if curl "${API_URL}/api/status" | grep "ok"
             then
               echo "Backend smoke test passed"
+              exit 0;
             else
               echo "Backend smoke test failed"
+              exit 1;
             fi
       - run:
           name: Frontend smoke test.
