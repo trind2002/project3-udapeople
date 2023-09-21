@@ -3,14 +3,16 @@
   file:
     path: /home/ubuntu/project
     state: directory
+    mode: 0777
 - name: Unarchive artifact
   unarchive:
-    src: ../artifact/artifact.tar.gz
+    remote_src: yes
+    src: /home/ubuntu/project/artifact.tar.gz
     dest: /home/ubuntu/project
 - name: Copy env file
   shell: cp /tmp/.env /home/ubuntu/project
 - name: Start app
   shell: |
-    cd project
+    cd /home/ubuntu/project
     pm2 stop default
     pm2 start npm -- start
