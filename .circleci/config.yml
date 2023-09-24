@@ -152,6 +152,7 @@ jobs:
     docker:
       # Docker image here that supports AWS CLI
       - image: amazon/aws-cli
+    working_directory: ~/project
     steps:
       # Checkout code from git
       - checkout

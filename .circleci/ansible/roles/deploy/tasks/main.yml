@@ -4,6 +4,10 @@
     path: /home/ubuntu/project
     state: directory
     mode: 0777
+- name: Copy compressed backend folder
+  copy:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/project/artifact.tar.gz
 - name: Unarchive artifact
   unarchive:
     remote_src: yes
