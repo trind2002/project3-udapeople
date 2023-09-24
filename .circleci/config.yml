@@ -198,6 +198,8 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"] # You can get this ID in the section where you registered the SSH Key
       # attach workspace
+      - restore_cache:
+          key: inventory-{{ .Revision  }}
       - run:
           name: Install dependencies
           command: |
@@ -267,13 +269,13 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            # your code here            
+            # your code here
+            at .circleci/ansible/inventory.txt          
             export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | tail -n 1)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
-            cat frontend/.env
-      
+            cat frontend/.env      
       - run:
           name: Deploy frontend objects
           command: |
@@ -297,6 +299,11 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["2c:59:b2:64:36:60:62:cf:0f:83:c8:72:53:ad:22:b8"]
+      - restore_cache:
+          name: restore inventory
+          keys:
+            - inventory-{{ .Revision  }}
+            - inventory-
       - run:
           name: Install dependencies
           command: |
@@ -320,7 +327,7 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure 
       - destroy-environment
       - revert-migrations
