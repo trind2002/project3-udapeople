@@ -248,11 +248,10 @@ jobs:
   deploy-frontend:  
     docker:
       - image: circleci/node:13.8.0
+    working_directory: ~/project
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: .circleci/ansible/
       - restore_cache:
           keys: [frontend-build]
       - restore_cache:
@@ -270,9 +269,9 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            cd .circleci/ansible
-            cat inventory.txt          
-            export BACKEND_IP=$(cat inventory.txt | tail -n 1)
+            echo "Contents  of the inventory.txt file is -------"
+            cat .circleci/ansible/inventory.txt          
+            export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | tail -n 1)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
