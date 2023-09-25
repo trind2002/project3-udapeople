@@ -37,3 +37,6 @@ curl --insecure  https://kvdb.io/[bucket-ID]/[key]
 # Example
 curl --insecure  https://kvdb.io/4rFJyH4hNUAdKbwRLrY43L/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}
 # Trigger Cleanup 2
+
+Prometheus: Intsall 
+https://codewizardly.com/prometheus-on-aws-ec2-part1/
