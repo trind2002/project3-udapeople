@@ -265,8 +265,8 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            export INSTACNE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[0].OutputValue" --filters "Name=tag:project,Values=udapeople" --output text)
-            export BACKEND_IP=$(aws ec2 describe-instances --instance-ids $INSTACNE_ID --query 'Reservations[*].Instances[*].PublicIpAddress' --output text) 
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)[0]   
+            echo "BACKEND_IP = ${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -353,8 +353,7 @@ jobs:
           name: Backend smoke test.
           command: |
             # your code here
-            export INSTACNE_ID=$(aws cloudformation describe-stacks --stack-name $STACK_NAME --query "Stacks[0].Outputs[0].OutputValue" --filters "Name=tag:project,Values=udapeople" --output text)
-            export BACKEND_IP=$(aws ec2 describe-instances --instance-ids $INSTACNE_ID --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)[0]
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
