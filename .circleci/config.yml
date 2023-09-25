@@ -248,17 +248,13 @@ jobs:
   deploy-frontend:  
     docker:
       - image: circleci/node:13.8.0
-    working_directory: ~/project
     steps:
       # Checkout code from git
       - checkout
+      - attach_workspace:
+          at: .circleci/ansible
       - restore_cache:
           keys: [frontend-build]
-      - restore_cache:
-          name: restore inventory
-          keys:
-            - inventory-{{ .Revision  }}
-            - inventory-
       - run:
           name: "Install AWS CLI"
           command: |
@@ -269,9 +265,7 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            echo "Contents  of the inventory.txt file is -------"
-            cat .circleci/ansible/inventory.txt          
-            export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | tail -n 1)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)   
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
