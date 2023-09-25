@@ -36,3 +36,4 @@ curl https://kvdb.io/GnKyNnpF737L7n1W7dcs5G/migration_$\{CIRCLE_WORKFLOW_ID:0:7\
 curl --insecure  https://kvdb.io/[bucket-ID]/[key]
 # Example
 curl --insecure  https://kvdb.io/4rFJyH4hNUAdKbwRLrY43L/migration_$\{CIRCLE_WORKFLOW_ID:0:7\}
+# Trigger Cleanup
