@@ -40,3 +40,16 @@ curl --insecure  https://kvdb.io/4rFJyH4hNUAdKbwRLrY43L/migration_$\{CIRCLE_WORK
 
 Prometheus: Intsall 
 https://codewizardly.com/prometheus-on-aws-ec2-part1/
+
+alert rule file
+groups:
+- name: alert.rules
+  rules:
+  - alert: InstanceDown
+    expr: up == 0
+    for: 1m
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "Endpoint {{ $labels.instance }} down"
+      description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minutes."
