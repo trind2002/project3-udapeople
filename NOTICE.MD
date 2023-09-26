@@ -53,3 +53,6 @@ groups:
     annotations:
       summary: "Endpoint {{ $labels.instance }} down"
       description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minutes."
+
+https://api.slack.com/messaging/webhooks
+https://prometheus.io/docs/alerting/latest/notification_examples/
